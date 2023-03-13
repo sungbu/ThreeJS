@@ -11,8 +11,11 @@ export default class World {
         this.camera = this.experience.camera;
         this.resources = this.experience.resources;
 
+        //监听到资源解码加载完后
         this.resources.on('ready', () => {
+            //实例化环境类（灯光、阴影）
             this.environment = new Environment();
+            //实例化主体（房子）
             this.room = new Room();
             console.log("created room");
         })
@@ -20,5 +23,9 @@ export default class World {
     resize() {
     }
     update() {
+        if(this.room){
+            //更新room里的动画
+            this.room.update();
+        }
     }
 }
