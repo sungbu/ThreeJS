@@ -91,6 +91,25 @@ agentGroup2.position.x = 4;
 agentGroup2.position.y = 1;
 scene.add(agentGroup2);
 
+const agent3 = new THREE.Mesh(new THREE.CylinderGeometry(agentRadius, agentRadius,agentHeight), new THREE.MeshPhongMaterial({color: 'pink'}));
+agent3.position.y = agentHeight / 2;
+const agentGroup3 = new THREE.Group();
+agentGroup3.add(agent3);
+agentGroup3.position.z = 1;
+agentGroup3.position.x = 5;
+agentGroup3.position.y = 1;
+scene.add(agentGroup3);
+
+
+const agent4 = new THREE.Mesh(new THREE.CylinderGeometry(agentRadius, agentRadius,agentHeight), new THREE.MeshPhongMaterial({color: 'blue'}));
+agent4.position.y = agentHeight / 2;
+const agentGroup4 = new THREE.Group();
+agentGroup4.add(agent4);
+agentGroup4.position.z = 1;
+agentGroup4.position.x = -4;
+agentGroup4.position.y = 1;
+scene.add(agentGroup4);
+
 
 
 let mainNode;
@@ -104,9 +123,11 @@ loader.load("./public/models/test-road.glb",(gltf) => {
 
 
 
-const navmesh1 = new Navmesh(scene,"Level1",camera,renderer);
-const navmesh2 = new Navmesh(scene,"Level2",camera,renderer);
 let navmesh;
+const navmesh1 = new Navmesh(scene,"Level1",camera,renderer,agentGroup);
+const navmesh2 = new Navmesh(scene,"Level2",camera,renderer,agentGroup4);
+const navmesh3 = new Navmesh(scene,"Level3",camera,renderer,agentGroup2);
+const navmesh4 = new Navmesh(scene,"Level4",camera,renderer,agentGroup3);
 
 
 
@@ -118,14 +139,15 @@ loader.load("./public/models/test-road-navmesh.glb",(gltf) => {
     gltf.scene.traverse(node => { //对 GLTF 模型场景进行遍历
         if(!navmesh && node.isObject3D && node.children && node.children.length > 0){
             navmesh = node.children[0];
-            console.log(navmesh)
             //使用导航网格对象的几何数据创建一个 Pathfinding 区域，并将其添加到 Pathfinding 中。
             //ZONE 是一个字符串，表示当前区域的名称。
             // 返回一个 Zone 对象，其中包含了该几何体的路径规划数据。然后使用 pathfinding.setZoneData 将该 Zone 对象添加到 Pathfinding 中。
             // pathfinding.setZoneData(ZONE,Pathfinding.createZone(navmesh.geometry))
             // getPath(navmesh);
-            navmesh1.createPath(agentGroup2,navmesh,mainNode,camera,renderer,scene);
-            navmesh2.createPath(agentGroup,navmesh,mainNode,camera,renderer,scene);
+            navmesh1.createPath(navmesh,mainNode);
+            navmesh2.createPath(navmesh,mainNode);
+            navmesh3.createPath(navmesh,mainNode);
+            navmesh4.createPath(navmesh,mainNode);
         }
     })
 })
@@ -133,10 +155,12 @@ loader.load("./public/models/test-road-navmesh.glb",(gltf) => {
 
 
 
-setInterval(() => {
-    navmesh1.createPath(agentGroup2,navmesh,mainNode,camera,renderer,scene);
-    navmesh2.createPath(agentGroup,navmesh,mainNode,camera,renderer,scene);
-},5000)
+// setInterval(() => {
+//     navmesh1.createPath(navmesh,mainNode);
+//     navmesh2.createPath(navmesh,mainNode);
+//     navmesh3.createPath(navmesh,mainNode);
+//     navmesh4.createPath(navmesh,mainNode);
+// },3000)
 
 
 
@@ -145,11 +169,16 @@ setInterval(() => {
 
 const clock = new THREE.Clock();
 let gameLoop = () => {
-    navmesh1.move(clock.getDelta() * 1)
-    navmesh2.move(clock.getDelta() * 1)
-    // move(clock.getDelta() * 1);
+    let delta = clock.getDelta();
+    navmesh1.move(delta * 3)
+    navmesh2.move(delta * 3)
+    navmesh3.move(delta * 3)
+    navmesh4.move(delta * 3)
+    // move(clock.getDelta() * 5);
     orbitControls.update();
     renderer.render(scene,camera);
     requestAnimationFrame(gameLoop);
 }
+
+
 gameLoop();
